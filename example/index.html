@@ -1,0 +1,128 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Motion Controls - Jérémy BOUNY</title>
+		<link href="assets/css/style.css" rel="stylesheet">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	</head>
+
+	<body>	
+		<div style="position:absolute; top:0px; left:0px; background-color: #000" id="debug"></div>
+		<div id="canvas-3d" class="viewer"></div>
+		
+		<!-- External libraries -->
+		<script src="assets/libs/three.min.js"></script>
+		<script src="assets/libs/jquery.min.js"></script>
+		<script src="assets/libs/RequestAnimationFrame.js"></script>
+		<script src="assets/libs/orientationchange.js"></script>
+		<script src="../MotionControls.js"></script>
+		
+		<!-- Demo files -->		
+		<script type="text/javascript">
+			var DEMO =
+			{
+				ms_Canvas: null,
+				ms_Renderer: null,
+				ms_Camera: null, 
+				ms_Scene: null, 
+				ms_Controls: null,
+				
+				Enable: ( function() 
+				{
+					try 
+					{
+						var aCanvas = document.createElement( 'canvas' ); 
+						return !! window.WebGLRenderingContext && ( aCanvas.getContext( 'webgl' ) || aCanvas.getContext( 'experimental-webgl' ) ); 
+					} 
+					catch( e ) { return false; } 
+				} )(),
+				
+				Initialize: function( inIdCanvas )
+				{
+					this.ms_Canvas = $( '#'+inIdCanvas );
+					
+					// Initialize Renderer, Camera and Scene
+					this.ms_Renderer = this.Enable? new THREE.WebGLRenderer() : new THREE.CanvasRenderer();
+					this.ms_Canvas.html( this.ms_Renderer.domElement );
+					this.ms_Scene = new THREE.Scene();
+					
+					this.ms_Camera = new THREE.PerspectiveCamera( 55.0, $( window ).width() / $( window ).height(), 0.5, 100000 );
+					this.ms_Controls = new THREE.MotionControls( this.ms_Camera );
+				
+					this.LoadSkyBox();
+				},
+				
+				LoadSkyBox: function()
+				{
+					var aCubeMap = THREE.ImageUtils.loadTextureCube( [
+					  'assets/img/px.jpg',
+					  'assets/img/nx.jpg',
+					  'assets/img/py.jpg',
+					  'assets/img/ny.jpg',
+					  'assets/img/pz.jpg',
+					  'assets/img/nz.jpg'
+					] );
+					aCubeMap.format = THREE.RGBFormat;
+
+					var aShader = THREE.ShaderLib['cube'];
+					aShader.uniforms['tCube'].value = aCubeMap;
+
+					var aSkyBoxMaterial = new THREE.ShaderMaterial( {
+					  fragmentShader: aShader.fragmentShader,
+					  vertexShader: aShader.vertexShader,
+					  uniforms: aShader.uniforms,
+					  depthWrite: false,
+					  side: THREE.BackSide
+					});
+
+					var aSkybox = new THREE.Mesh(
+					  new THREE.CubeGeometry( 50000, 50000, 50000 ),
+					  aSkyBoxMaterial
+					);
+					
+					this.ms_Scene.add( aSkybox );
+				},
+				
+				Display: function()
+				{
+					this.ms_Renderer.render( this.ms_Scene, this.ms_Camera );
+				},
+				
+				Update: function()
+				{
+					this.ms_Controls.update();
+					this.Display();
+				},
+				
+				Resize: function( inWidth, inHeight )
+				{
+					this.ms_Camera.aspect =  inWidth / inHeight;
+					this.ms_Camera.updateProjectionMatrix();
+					this.ms_Renderer.setSize( inWidth, inHeight );
+					this.ms_Canvas.html( this.ms_Renderer.domElement );
+					this.Display();
+				}
+			};
+
+			function MainLoop()
+			{
+				requestAnimationFrame( MainLoop );
+				DEMO.Update();
+			}
+
+			$( function() {
+				DEMO.Initialize( 'canvas-3d' );
+				
+				DEMO.Resize( $( window ).width(), $( window ).height() - 4 );
+				$( window ).resize( function( inEvent ) {
+					DEMO.Resize( $(window).width(), $(window).height() - 4 );
+				} );
+				
+				MainLoop();
+			} );
+		</script>
+	</body>
+</html>
