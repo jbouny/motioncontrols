@@ -3,21 +3,18 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Motion Controls - Jérémy BOUNY</title>
-		<link href="assets/css/style.css" rel="stylesheet">
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="mobile-web-app-capable" content="yes" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	</head>
 
-	<body>	
-		<div style="position:absolute; top:0px; left:0px; background-color: #000" id="debug"></div>
+	<body style="margin:0px; padding:0px; overflow:hidden">	
 		<div id="canvas-3d" class="viewer"></div>
 		
 		<!-- External libraries -->
 		<script src="assets/libs/three.min.js"></script>
 		<script src="assets/libs/jquery.min.js"></script>
 		<script src="assets/libs/RequestAnimationFrame.js"></script>
-		<script src="assets/libs/orientationchange.js"></script>
 		<script src="../MotionControls.js"></script>
 		
 		<!-- Demo files -->		
@@ -58,12 +55,12 @@
 				LoadSkyBox: function()
 				{
 					var aCubeMap = THREE.ImageUtils.loadTextureCube( [
-					  'assets/img/px.jpg',
-					  'assets/img/nx.jpg',
-					  'assets/img/py.jpg',
-					  'assets/img/ny.jpg',
-					  'assets/img/pz.jpg',
-					  'assets/img/nz.jpg'
+						'assets/img/px.jpg',
+						'assets/img/nx.jpg',
+						'assets/img/py.jpg',
+						'assets/img/ny.jpg',
+						'assets/img/pz.jpg',
+						'assets/img/nz.jpg'
 					] );
 					aCubeMap.format = THREE.RGBFormat;
 
@@ -71,16 +68,16 @@
 					aShader.uniforms['tCube'].value = aCubeMap;
 
 					var aSkyBoxMaterial = new THREE.ShaderMaterial( {
-					  fragmentShader: aShader.fragmentShader,
-					  vertexShader: aShader.vertexShader,
-					  uniforms: aShader.uniforms,
-					  depthWrite: false,
-					  side: THREE.BackSide
+						fragmentShader: aShader.fragmentShader,
+						vertexShader: aShader.vertexShader,
+						uniforms: aShader.uniforms,
+						depthWrite: false,
+						side: THREE.BackSide
 					});
 
 					var aSkybox = new THREE.Mesh(
-					  new THREE.CubeGeometry( 50000, 50000, 50000 ),
-					  aSkyBoxMaterial
+						new THREE.CubeGeometry( 50000, 50000, 50000 ),
+						aSkyBoxMaterial
 					);
 					
 					this.ms_Scene.add( aSkybox );
@@ -116,9 +113,9 @@
 			$( function() {
 				DEMO.Initialize( 'canvas-3d' );
 				
-				DEMO.Resize( $( window ).width(), $( window ).height() - 4 );
+				DEMO.Resize( $( window ).width(), $( window ).height() );
 				$( window ).resize( function( inEvent ) {
-					DEMO.Resize( $(window).width(), $(window).height() - 4 );
+					DEMO.Resize( $(window).width(), $(window).height() );
 				} );
 				
 				MainLoop();
